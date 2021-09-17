@@ -99,10 +99,15 @@ router.put('/account/update/:cpf', verifyIfExistsAccountCPF, (request, response)
     return response.status(200).json('ok')
 
 })
-router.get('/account/:cpf',verifyIfExistsAccountCPF, (request, response) => {
+router.get('/account/:cpf', verifyIfExistsAccountCPF, (request, response) => {
     const { costumer } = request
     console.log(costumer)
     return response.json(costumer)
+})
+router.delete('/account/delete/:cpf', verifyIfExistsAccountCPF, (request, response) => {
+    const { costumer } = request
+    costumers.splice(costumer, 1)
+    return response.status(200).json(costumers)
 })
 
 export { router }

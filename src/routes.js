@@ -4,13 +4,13 @@ import { v4 } from 'uuid';
 
 const costumers = []
 // middleware
-function verifyIfExistsAccountCPF(request,response,next){
+function verifyIfExistsAccountCPF(request, response, next) {
     const { cpf } = request.params
 
     const costumer = costumers.find(costumer => costumer.cpf === cpf)
 
-    if(!costumer){
-        return response.status(400).json({error: "Costumer not found"})
+    if (!costumer) {
+        return response.status(400).json({ error: "Costumer not found" })
     }
 
     request.costumer = costumer
@@ -29,9 +29,23 @@ router.post('/account', (req, res) => {
 
     res.status(201).json(costumers)
 })
-router.get('/account/statement/:cpf',verifyIfExistsAccountCPF, (request, response) => {
-    const {costumer} = request
-    return response.json({status:'200 OK',data:costumer.statement})
+router.get('/account/statement/:cpf', verifyIfExistsAccountCPF, (request, response) => {
+    const { costumer } = request
+    return response.json({ status: '200 OK', data: costumer.statement })
+})
+router.post('/deposit/:cpf', verifyIfExistsAccountCPF, (request, response) => {
+    const { description, amount,type } = request.body
+    const { costumer } = request
+
+    const statementOperation = {
+        description,
+        amount,
+        created_at: new Date(),
+        type
+    }
+    costumer.statement.push(statementOperation)
+    return response.status(200).json(costumer.statement)
+
 })
 
 

@@ -17,6 +17,17 @@ function verifyIfExistsAccountCPF(request, response, next) {
 
     return next();
 }
+function getBalance(statement) {
+    const balance = statement.reduce((acc, operation) => {
+        if(operation.type === "credit"){
+            return acc + operation.amount
+        }else {
+            return acc - operation.amount
+        }
+    },0)
+
+    return balance
+}
 
 router.post('/account', (req, res) => {
     const { cpf, name } = req.body
@@ -34,7 +45,7 @@ router.get('/account/statement/:cpf', verifyIfExistsAccountCPF, (request, respon
     return response.json({ status: '200 OK', data: costumer.statement })
 })
 router.post('/deposit/:cpf', verifyIfExistsAccountCPF, (request, response) => {
-    const { description, amount,type } = request.body
+    const { description, amount, type } = request.body
     const { costumer } = request
 
     const statementOperation = {
@@ -46,6 +57,25 @@ router.post('/deposit/:cpf', verifyIfExistsAccountCPF, (request, response) => {
     costumer.statement.push(statementOperation)
     return response.status(200).json(costumer.statement)
 
+})
+router.post('/withdraw/:cpf', verifyIfExistsAccountCPF, (request, response) => {
+    const { amount } = request.body
+    const { costumer } = request
+
+    const balance = getBalance(costumer.statement)
+
+    if(balance < amount){
+        return response.status(400).json({error:"insufficient funds"})
+    }
+
+    const statementOperation = {
+        amount,
+        created_at: new Date(),
+        type:"debit"
+    }
+    costumer.statement.push(statementOperation)
+
+    return response.status(200).send()
 })
 
 

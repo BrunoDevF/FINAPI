@@ -90,6 +90,19 @@ router.get('/statement/date/:cpf', verifyIfExistsAccountCPF, (request, response)
     return response.json(statement)
 
 })
+router.put('/account/update/:cpf', verifyIfExistsAccountCPF, (request, response) => {
+    const { name } = request.body
+    const { costumer } = request
 
+    costumer.name = name
+
+    return response.status(200).json('ok')
+
+})
+router.get('/account/:cpf',verifyIfExistsAccountCPF, (request, response) => {
+    const { costumer } = request
+    console.log(costumer)
+    return response.json(costumer)
+})
 
 export { router }
